@@ -1,103 +1,106 @@
+"use client";
 import Image from "next/image";
+import React, { FormEvent, useState } from "react";
 
-export default function Home() {
+const ContactPage: React.FC = () => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    // Extract form values using event.target
+    const form = event.target as HTMLFormElement;
+    const fullName = (form.elements.namedItem("fullName") as HTMLInputElement)
+      ?.value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement)?.value;
+    const message = (form.elements.namedItem("message") as HTMLTextAreaElement)
+      ?.value;
+
+    console.log("Form Submitted:", { fullName, email, message });
+
+    alert(`Thank you, ${fullName}! Your message has been received.`);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="relative min-h-screen w-full overflow-hidden bg-[#E3ECFE] flex items-center justify-center py-6">
+      <div className="absolute inset-0 bg-[#99bbf1] clip-path-custom hidden md:block"></div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+      <div className="container mx-auto flex flex-col md:flex-row items-center justify-center px-6 md:px-12 lg:px-20">
+        <div className="w-full md:w-1/2 flex flex-col justify-center space-y-6 z-20 relative">
+          <div className="flex items-center">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              height={120}
+              width={200}
+              alt="Brand Logo (Cyber Craft)"
+              src={"/images/cybercraft.svg"}
+              className="h-auto w-48"
+              priority
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </div>
+
+          <p className="text-gray-700 text-sm md:text-base">
+            Welcome back to CyberCraft Bangladesh,
+            <br />
+            where your creativity thrives
+          </p>
+
+          <form className="space-y-6 relative z-30" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="fullName" className="block text-sm text-gray-700">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="fullName"
+                placeholder="Your full name"
+                className="w-full p-3 border text-gray-700 bg-white border-[#D8DADC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm text-gray-700">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                placeholder="example@gmail.com"
+                className="w-full p-3 border bg-white border-[#D8DADC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="message" className="block text-sm text-gray-700">
+                Message
+              </label>
+              <textarea
+                id="message"
+                placeholder="Write message"
+                rows={4}
+                className="w-full p-3 border bg-white border-[#D8DADC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-[#395482] hover:bg-blue-800 text-white py-3 px-4 rounded transition duration-200"
+            >
+              Submit
+            </button>
+          </form>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+
+        <div className="w-full md:w-1/2 flex items-center justify-center relative bg-[#99bbf1] mt-6 md:bg-transparent">
           <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            height={600}
+            width={500}
+            alt="Character illustration"
+            src={"/images/asset-1.svg"}
+            className="object-contain z-10"
+            priority
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default ContactPage;

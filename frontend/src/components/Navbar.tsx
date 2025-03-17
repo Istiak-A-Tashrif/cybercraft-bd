@@ -16,7 +16,7 @@ const Navbar = ({ setIsNavbarVisible }: any) => {
   const [visible, setVisible] = useState(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
-  const getNavbarHeight = () => (window.innerWidth < 640 ? 100 : 52); 
+  const getNavbarHeight = () => (window.innerWidth < 640 ? 100 : 52);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -71,7 +71,7 @@ const Navbar = ({ setIsNavbarVisible }: any) => {
   const handleLogout = async () => {
     try {
       await authService.logout();
-      router.push("/login");
+      router.push("/logged-out");
     } catch (error) {
       console.error("Logout failed:", error);
     }

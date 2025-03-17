@@ -149,11 +149,12 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 // @access  Private
 exports.logout = asyncHandler(async (req, res, next) => {
   res.cookie("token", "none", {
-    expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true,
+    expires: new Date(Date.now() - 1), // Immediately expire the cookie
+    httpOnly: true, // Ensure the cookie is not accessible via JavaScript
+    secure: process.env.NODE_ENV === "production", // Use secure cookies in production
   });
 
-  res.status(200).json({ success: true, data: {} });
+  res.status(200).json({ success: true, message: "Logged out successfully" }); // Respond with a success message
 });
 
 // Helper function to get token from model, create cookie and send response

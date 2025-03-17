@@ -17,7 +17,7 @@ const LoginPage = () => {
   const handleGoogleLogin = async (credentialResponse: any) => {
     try {
       await authService.googleAuth(credentialResponse.credential);
-      router.push("/dashboard");
+      router.push("/");
     } catch (err) {
       console.error("Google login failed", err);
       setError("Google login failed. Please try again.");
@@ -30,7 +30,7 @@ const LoginPage = () => {
 
     try {
       const response = await authService.login({ email, password });
-      router.push("/dashboard"); // Redirect to dashboard after login
+      router.push("/"); // Redirect to dashboard after login
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid email or password");
     }

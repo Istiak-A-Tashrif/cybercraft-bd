@@ -3,7 +3,7 @@
 import axios from 'axios';
 import { getCookie, setCookie, deleteCookie } from 'cookies-next';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Create axios instance with default config
 const api = axios.create({
@@ -89,8 +89,13 @@ export const authService = {
 
 // Contact services
 export const contactService = {
-  // Public endpoint
-  submitContactForm: async (contactData) => {
+  // User endpoints
+  getCurrentUserContact: async () => {
+    const response = await api.get('/contacts/me');
+    return response.data;
+  },
+  
+  createOrUpdateContact: async (contactData) => {
     const response = await api.post('/contacts', contactData);
     return response.data;
   },

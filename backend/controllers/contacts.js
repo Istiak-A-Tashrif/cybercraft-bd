@@ -1,42 +1,83 @@
 const Contact = require("../models/Contact");
+const User = require("../models/User");
 const asyncHandler = require("../middleware/async");
 const ErrorResponse = require("../utils/errorResponse");
 const { generatePDF } = require("../utils/pdfGenerator");
 const { generateExcel } = require("../utils/excelGenerator");
 const { sendContactEmail } = require("../utils/emailService");
 
-// @desc    Create new contact message
+// @desc    Create or update user's contact message
 // @route   POST /api/v1/contacts
-// @access  Public
-exports.createContact = asyncHandler(async (req, res, next) => {
+// @access  Private
+exports.createOrUpdateContact = asyncHandler(async (req, res, next) => {
   const { fullName, email, message } = req.body;
+  
+  // Check if user already has a contact
+  let contact = await Contact.findOne({ user: req.user.id });
+  
+  if (contact) {
+    // Update existing contact
+    contact = await Contact.findOneAndUpdate(
+      { user: req.user.id },
+      { fullName, email, message },
+      { new: true, runValidators: true }
+    );
+    
+    res.status(200).json({
+      success: true,
+      data: contact,
+      message: "Contact information updated successfully"
+    });
+  } else {
+    // Create new contact
+    contact = await Contact.create({
+      fullName,
+      email,
+      message,
+      user: req.user.id
+    });
+    
+    // Generate PDF
+    const pdfBuffer = await generatePDF(contact);
+    
+    // Send email with PDF attachment
+    await sendContactEmail({
+      to: process.env.EMAIL_TO,
+      subject: "New Contact Form Submission",
+      text: `New contact form submission from ${fullName} (${email})`,
+      attachments: [
+        {
+          filename: `contact_${contact._id}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
+    });
+    
+    res.status(201).json({
+      success: true,
+      data: contact,
+      message: "Contact information submitted successfully"
+    });
+  }
+});
 
-  // Create contact
-  const contact = await Contact.create({
-    fullName,
-    email,
-    message,
-  });
-
-  // Generate PDF
-  const pdfBuffer = await generatePDF(contact);
-
-  // Send email with PDF attachment
-  await sendContactEmail({
-    to: process.env.EMAIL_TO,
-    subject: "New Contact Form Submission",
-    text: `New contact form submission from ${fullName} (${email})`,
-    attachments: [
-      {
-        filename: `contact_${contact._id}.pdf`,
-        content: pdfBuffer,
-      },
-    ],
-  });
-
-  res.status(201).json({
+// @desc    Get current user's contact
+// @route   GET /api/v1/contacts/me
+// @access  Private
+exports.getCurrentUserContact = asyncHandler(async (req, res, next) => {
+  const contact = await Contact.findOne({ user: req.user.id });
+  
+  if (!contact) {
+    return res.status(200).json({
+      success: true,
+      data: null,
+      message: "No contact information found"
+    });
+  }
+  
+  res.status(200).json({
     success: true,
-    data: contact,
+    data: contact
   });
 });
 
@@ -51,7 +92,7 @@ exports.getContacts = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/contacts/:id
 // @access  Private/Admin
 exports.getContact = asyncHandler(async (req, res, next) => {
-  const contact = await Contact.findById(req.params.id);
+  const contact = await Contact.findById(req.params.id).populate('user', 'name email');
 
   if (!contact) {
     return next(
@@ -65,7 +106,7 @@ exports.getContact = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Update contact
+// @desc    Update contact (Admin only)
 // @route   PUT /api/v1/contacts/:id
 // @access  Private/Admin
 exports.updateContact = asyncHandler(async (req, res, next) => {

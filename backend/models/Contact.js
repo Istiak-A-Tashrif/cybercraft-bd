@@ -22,10 +22,25 @@ const ContactSchema = new mongoose.Schema({
     enum: ['new', 'read', 'responded'],
     default: 'new'
   },
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
+});
+
+// Set updatedAt date on update
+ContactSchema.pre('findOneAndUpdate', function(next) {
+  this.set({ updatedAt: new Date() });
+  next();
 });
 
 module.exports = mongoose.model('Contact', ContactSchema);

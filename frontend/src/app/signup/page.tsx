@@ -19,7 +19,7 @@ const SignUpPage = () => {
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       await authService.googleAuth(credentialResponse.credential);
-      router.push("/dashboard");
+      router.push("/");
     } catch (err) {
       console.error("Google signup failed", err);
       setError("Google signup failed. Please try again.");
@@ -42,7 +42,7 @@ const SignUpPage = () => {
         password,
       });
 
-      router.push("/dashboard"); // Redirect after successful registration
+      router.push("/"); // Redirect after successful registration
     } catch (err) {
       setError(err.response?.data?.message || "Signup failed. Try again.");
     }

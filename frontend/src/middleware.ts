@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 const protectedRoutes = ["/contacts"];
 
 export async function middleware(req: NextRequest) {
+  return NextResponse.next();
+  console.log(2222222);
+  
   const token = req.cookies.get("token")?.value; // Correct way to get cookies in middleware
   const userRole = req.cookies.get("userRole")?.value; // Check if user role is already stored
   const url = req.nextUrl.clone();

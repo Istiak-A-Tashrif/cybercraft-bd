@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import { FaBell, FaSearch } from "react-icons/fa";
 import { authService } from "@/services/api";
+import { getCookie } from "cookies-next";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { FaBell, FaSearch } from "react-icons/fa";
 
 const Navbar = ({ setIsNavbarVisible }: any) => {
   const [user, setUser] = useState<{
@@ -18,6 +19,8 @@ const Navbar = ({ setIsNavbarVisible }: any) => {
   const router = useRouter();
   const getNavbarHeight = () => (window.innerWidth < 640 ? 100 : 52);
 
+  const token = getCookie("token");
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -27,7 +30,9 @@ const Navbar = ({ setIsNavbarVisible }: any) => {
         console.error("Failed to fetch user:", error);
       }
     };
-    fetchUser();
+    if (token) {
+      fetchUser();
+    }
   }, []);
 
   // Function to reset the hide timeout
@@ -147,7 +152,7 @@ const Navbar = ({ setIsNavbarVisible }: any) => {
                   <div className="absolute right-0 mt-2 bg-white shadow-md rounded-md w-32">
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
                     >
                       Logout
                     </button>

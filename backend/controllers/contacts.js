@@ -100,7 +100,7 @@ exports.deleteContact = asyncHandler(async (req, res, next) => {
     );
   }
 
-  await contact.remove();
+  await contact.deleteOne();
 
   res.status(200).json({
     success: true,

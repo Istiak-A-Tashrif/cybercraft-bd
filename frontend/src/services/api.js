@@ -1,7 +1,7 @@
 // services/api.js - Core API service with axios
 
-import axios from 'axios';
-import { getCookie, setCookie, deleteCookie } from 'cookies-next';
+import axios from "axios";
+import { getCookie, setCookie, deleteCookie } from "cookies-next";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -9,14 +9,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Request interceptor for adding auth token
 api.interceptors.request.use(
   (config) => {
-    const token = getCookie('token');
+    const token = getCookie("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -31,10 +31,10 @@ api.interceptors.response.use(
   async (error) => {
     // Handle 401 Unauthorized errors
     if (error.response && error.response.status === 401) {
-      deleteCookie('token');
+      deleteCookie("token");
       // Redirect to login if we're in the browser
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
       }
     }
     return Promise.reject(error);
@@ -44,117 +44,127 @@ api.interceptors.response.use(
 // Auth services
 export const authService = {
   register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
+    const response = await api.post("/auth/register", userData);
     if (response.data.token) {
-      setCookie('token', response.data.token);
+      setCookie("token", response.data.token);
     }
     return response.data;
   },
-  
+
   login: async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
+    const response = await api.post("/auth/login", credentials);
     if (response.data.token) {
-      setCookie('token', response.data.token);
+      setCookie("token", response.data.token);
     }
     return response.data;
   },
-  
+
   googleAuth: async (tokenId) => {
-    const response = await api.post('/auth/google', { tokenId });
+    const response = await api.post("/auth/google", { tokenId });
     if (response.data.token) {
-      setCookie('token', response.data.token);
+      setCookie("token", response.data.token);
     }
     return response.data;
   },
-  
+
   facebookAuth: async (accessToken, userID) => {
-    const response = await api.post('/auth/facebook', { accessToken, userID });
+    const response = await api.post("/auth/facebook", { accessToken, userID });
     if (response.data.token) {
-      setCookie('token', response.data.token);
+      setCookie("token", response.data.token);
     }
     return response.data;
   },
-  
+
   getCurrentUser: async () => {
-    const response = await api.get('/auth/me');
+    const response = await api.get("/auth/me");
     return response.data;
   },
-  
+
   logout: async () => {
-    const response = await api.get('/auth/logout');
-    deleteCookie('token');
+    const response = await api.get("/auth/logout");
+    deleteCookie("token");
     return response.data;
-  }
+  },
 };
 
 // Contact services
 export const contactService = {
   // User endpoints
   getCurrentUserContact: async () => {
-    const response = await api.get('/contacts/me');
+    const response = await api.get("/contacts/me");
     return response.data;
   },
-  
+
   createOrUpdateContact: async (contactData) => {
-    const response = await api.post('/contacts', contactData);
+    const response = await api.post("/contacts", contactData);
     return response.data;
   },
-  
+
   // Admin endpoints
-  getAllContacts: async (page = 1, limit = 10, sort = '-createdAt', status = null) => {
+  getAllContacts: async (
+    page = 1,
+    limit = 10,
+    sort = "-createdAt",
+    status = null
+  ) => {
     const params = { page, limit, sort };
     if (status) params.status = status;
-    
-    const response = await api.get('/contacts', { params });
+
+    const response = await api.get("/contacts", { params });
     return response.data;
   },
-  
+
   getContact: async (id) => {
     const response = await api.get(`/contacts/${id}`);
     return response.data;
   },
-  
+
   updateContact: async (id, updateData) => {
     const response = await api.put(`/contacts/${id}`, updateData);
     return response.data;
   },
-  
+
   deleteContact: async (id) => {
     const response = await api.delete(`/contacts/${id}`);
     return response.data;
   },
-  
+
   deleteMultipleContacts: async (ids) => {
-    const response = await api.delete('/contacts', { data: { ids } });
+    const response = await api.delete("/contacts", { data: { ids } });
     return response.data;
   },
-  
+
   downloadPDF: async (id) => {
     const response = await api.get(`/contacts/${id}/pdf`, {
-      responseType: 'blob'
+      responseType: "blob",
     });
     return response.data;
   },
-  
+
   downloadMultiplePDF: async (ids) => {
-    const response = await api.post('/contacts/pdf', { ids }, {
-      responseType: 'blob'
+    const response = await api.post(
+      "/contacts/pdf",
+      { ids },
+      {
+        responseType: "blob",
+      }
+    );
+    return response.data;
+  },
+
+  // Replace the two Excel download methods with a single consistent one
+  downloadExcel: async (ids = null) => {
+    let url = "/contacts/excel";
+
+    // If ids are provided, add them as query params
+    if (ids && ids.length > 0) {
+      const idString = ids.join(",");
+      url = `${url}?ids=${idString}`;
+    }
+
+    const response = await api.get(url, {
+      responseType: "blob",
     });
     return response.data;
   },
-  
-  downloadAllExcel: async () => {
-    const response = await api.get('/contacts/excel', {
-      responseType: 'blob'
-    });
-    return response.data;
-  },
-  
-  downloadSelectedExcel: async (ids) => {
-    const idString = ids.join(',');
-    const response = await api.get(`/contacts/excel?ids=${idString}`, {
-      responseType: 'blob'
-    });
-    return response.data;
-  }
 };

@@ -16,38 +16,31 @@ const Contact = require("../models/Contact");
 const advancedResults = require("../middleware/advancedResults");
 
 const router = express.Router();
-
 const { protect, authorize } = require("../middleware/auth");
 const { Roles } = require("../config/role");
 
-// Apply protect middleware to all routes
+// ✅ Protect all routes
 router.use(protect);
 
-// Routes for all authenticated users
-router.route("/me")
-  .get(getCurrentUserContact);
+// ✅ Routes for all authenticated users
+router.route("/me").get(getCurrentUserContact);
+router.route("/").post(createOrUpdateContact);
 
-router.route("/")
-  .post(createOrUpdateContact);
+// ✅ Public (No Admin Required)
+router.route("/excel").get(downloadContactsExcel);
 
-// Routes that need admin authorization for GET and DELETE
+// ✅ Routes that need admin authorization
 router.route("/")
   .get(authorize(Roles.Admin), advancedResults(Contact), getContacts)
   .delete(authorize(Roles.Admin), deleteMultipleContacts);
 
-// Routes for getting contact by ID - admin only
+router.route("/:id/pdf").get(authorize(Roles.Admin), downloadContactPdf);
+
 router.route("/:id")
   .get(authorize(Roles.Admin), getContact)
   .put(authorize(Roles.Admin), updateContact)
   .delete(authorize(Roles.Admin), deleteContact);
 
-// Routes that need admin authorization
-router.use(authorize(Roles.Admin));
-
-router.route("/excel").get(downloadContactsExcel);
-
-router.route("/pdf").post(downloadMultipleContactsPdf);
-
-router.route("/:id/pdf").get(downloadContactPdf);
+router.route("/pdf").post(authorize(Roles.Admin), downloadMultipleContactsPdf);
 
 module.exports = router;

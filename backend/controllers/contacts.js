@@ -5,16 +5,19 @@ const ErrorResponse = require("../utils/errorResponse");
 const { generatePDF } = require("../utils/pdfGenerator");
 const { generateExcel } = require("../utils/excelGenerator");
 const { sendContactEmail } = require("../utils/emailService");
+const mongoose = require("mongoose");
+// Debugging function
+const log = (message, data) => console.log(`[DEBUG] ${message}:`, data);
 
 // @desc    Create or update user's contact message
 // @route   POST /api/v1/contacts
 // @access  Private
 exports.createOrUpdateContact = asyncHandler(async (req, res, next) => {
   const { fullName, email, message } = req.body;
-  
+
   // Check if user already has a contact
   let contact = await Contact.findOne({ user: req.user.id });
-  
+
   if (contact) {
     // Update existing contact
     contact = await Contact.findOneAndUpdate(
@@ -22,11 +25,11 @@ exports.createOrUpdateContact = asyncHandler(async (req, res, next) => {
       { fullName, email, message },
       { new: true, runValidators: true }
     );
-    
+
     res.status(200).json({
       success: true,
       data: contact,
-      message: "Contact information updated successfully"
+      message: "Contact information updated successfully",
     });
   } else {
     // Create new contact
@@ -34,12 +37,12 @@ exports.createOrUpdateContact = asyncHandler(async (req, res, next) => {
       fullName,
       email,
       message,
-      user: req.user.id
+      user: req.user.id,
     });
-    
+
     // Generate PDF
     const pdfBuffer = await generatePDF(contact);
-    
+
     // Send email with PDF attachment
     await sendContactEmail({
       to: process.env.EMAIL_TO,
@@ -52,11 +55,11 @@ exports.createOrUpdateContact = asyncHandler(async (req, res, next) => {
         },
       ],
     });
-    
+
     res.status(201).json({
       success: true,
       data: contact,
-      message: "Contact information submitted successfully"
+      message: "Contact information submitted successfully",
     });
   }
 });
@@ -66,18 +69,18 @@ exports.createOrUpdateContact = asyncHandler(async (req, res, next) => {
 // @access  Private
 exports.getCurrentUserContact = asyncHandler(async (req, res, next) => {
   const contact = await Contact.findOne({ user: req.user.id });
-  
+
   if (!contact) {
     return res.status(200).json({
       success: true,
       data: null,
-      message: "No contact information found"
+      message: "No contact information found",
     });
   }
-  
+
   res.status(200).json({
     success: true,
-    data: contact
+    data: contact,
   });
 });
 
@@ -92,7 +95,10 @@ exports.getContacts = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/contacts/:id
 // @access  Private/Admin
 exports.getContact = asyncHandler(async (req, res, next) => {
-  const contact = await Contact.findById(req.params.id).populate('user', 'name email');
+  const contact = await Contact.findById(req.params.id).populate(
+    "user",
+    "name email"
+  );
 
   if (!contact) {
     return next(
@@ -195,29 +201,41 @@ exports.downloadContactPdf = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/contacts/excel
 // @access  Private/Admin
 exports.downloadContactsExcel = asyncHandler(async (req, res, next) => {
-  let query = {};
+  try {
+    let query = {};
 
-  // Filter by IDs if provided
-  if (req.query.ids) {
-    const ids = req.query.ids.split(",");
-    query = { _id: { $in: ids } };
+    if (req.query.ids) {
+      let ids = req.query.ids.split(",");
+
+      // Filter out invalid ObjectIds
+      ids = ids.filter((id) => mongoose.Types.ObjectId.isValid(id));
+
+      if (ids.length > 0) {
+        query._id = { $in: ids };
+      }
+    }
+
+    // Fetch contacts based on the query
+    const contacts = await Contact.find(query);
+
+    if (contacts.length === 0) {
+      return next(new ErrorResponse("No contacts found", 404));
+    }
+
+    const excelBuffer = await generateExcel(contacts);
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Content-Disposition", "attachment; filename=contacts.xlsx");
+    res.send(excelBuffer);
+  } catch (error) {
+    console.error("Error:", error);
+    next(new ErrorResponse("Internal Server Error", 500));
   }
-
-  const contacts = await Contact.find(query);
-
-  if (contacts.length === 0) {
-    return next(new ErrorResponse("No contacts found", 404));
-  }
-
-  const excelBuffer = await generateExcel(contacts);
-
-  res.setHeader(
-    "Content-Type",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  );
-  res.setHeader("Content-Disposition", "attachment; filename=contacts.xlsx");
-  res.send(excelBuffer);
 });
+
 
 // @desc    Download multiple contacts as PDF
 // @route   POST /api/v1/contacts/pdf

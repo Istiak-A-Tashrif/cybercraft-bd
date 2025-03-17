@@ -1,237 +1,242 @@
 "use client";
 import Navbar from "@/components/Navbar";
-import Image from "next/image";
-import { useState } from "react";
-import {
-  FaSearch,
-  FaDownload,
-  FaEye,
-  FaTrash,
-  FaSync,
-  FaFilter,
-  FaThLarge,
-  FaFileExport,
-  FaPlus,
-  FaBell,
-} from "react-icons/fa";
+import { contactService } from "@/services/api";
+import { useEffect, useState } from "react";
+import ContactsTable from "./components/ContactsTable";
+import FilterMenu from "./components/FilterMenu";
+import Header from "./components/Header";
+import Pagination from "./components/Pagination";
+import SearchBar from "./components/SearchBar";
 
-interface Employee {
-  id: number;
-  employeeId: string;
-  name: string;
+interface Contact {
+  _id: string;
+  fullName: string;
   email: string;
-  department: string;
-  designation: string;
+  message: string;
+  status: "new" | "read" | "responded";
+  createdAt: string;
+  updatedAt: string;
 }
 
-const employees: Employee[] = [
-  {
-    id: 1,
-    employeeId: "123456789",
-    name: "Md. Shoaib Shifat",
-    email: "abdulhadi@gmail.com",
-    department: "IT",
-    designation: "Developer",
-  },
-  {
-    id: 2,
-    employeeId: "987456321",
-    name: "MD Masuk Kabir",
-    email: "rakibhasan@gmail.com",
-    department: "Construction",
-    designation: "Site Engineer",
-  },
-  {
-    id: 3,
-    employeeId: "987654321",
-    name: "Md. Shoaib Shifat",
-    email: "abdulhadi@gmail.com",
-    department: "Construction",
-    designation: "Contractor",
-  },
-  {
-    id: 4,
-    employeeId: "123654789",
-    name: "MD Masuk Kabir",
-    email: "rakibhasan@gmail.com",
-    department: "Construction",
-    designation: "Site Engineer",
-  },
-  {
-    id: 5,
-    employeeId: "147852369",
-    name: "Md. Shoaib Shifat",
-    email: "abdulhadi@gmail.com",
-    department: "Construction",
-    designation: "Site Engineer",
-  },
-  {
-    id: 6,
-    employeeId: "369852147",
-    name: "MD Masuk Kabir",
-    email: "rakibhasan@gmail.com",
-    department: "IT",
-    designation: "SEO",
-  },
-  {
-    id: 7,
-    employeeId: "741258963",
-    name: "Md. Shoaib Shifat",
-    email: "abdulhadi@gmail.com",
-    department: "IT",
-    designation: "UI/UX Designer",
-  },
-  {
-    id: 8,
-    employeeId: "963258741",
-    name: "MD Masuk Kabir",
-    email: "rakibhasan@gmail.com",
-    department: "Tender",
-    designation: "Contractor",
-  },
-  {
-    id: 9,
-    employeeId: "741258963",
-    name: "Md. Shoaib Shifat",
-    email: "abdulhadi@gmail.com",
-    department: "IT",
-    designation: "SEO",
-  },
-  {
-    id: 10,
-    employeeId: "741258963",
-    name: "MD Masuk Kabir",
-    email: "abdulhadi@gmail.com",
-    department: "IT",
-    designation: "Developer",
-  },
-];
-
-export default function EmployeesPage() {
+export default function ContactsPage() {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isNavbarVisibele, setIsNavbarVisible] = useState(false);
+  const [isNavbarVisible, setIsNavbarVisible] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sortBy, setSortBy] = useState("-createdAt");
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+
+  // Fetch contacts
+  useEffect(() => {
+    fetchContacts();
+  }, [page, limit, sortBy, statusFilter]);
+
+  const fetchContacts = async () => {
+    setLoading(true);
+    try {
+      const result = await contactService.getAllContacts(
+        page,
+        limit,
+        sortBy,
+        statusFilter
+      );
+      setContacts(result.data);
+      setTotalPages(Math.ceil(result.pagination.total / limit));
+    } catch (error) {
+      console.error("Failed to fetch contacts:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle search
+  const filteredContacts = contacts.filter(
+    (contact) =>
+      contact.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.message.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Handle selection
+  const toggleSelection = (id: string) => {
+    setSelectedContacts((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedContacts.length === filteredContacts.length) {
+      setSelectedContacts([]);
+    } else {
+      setSelectedContacts(filteredContacts.map((contact) => contact._id));
+    }
+  };
+
+  // Handle deletion
+  const handleDeleteContact = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this contact?")) {
+      try {
+        await contactService.deleteContact(id);
+        setContacts((prev) => prev.filter((contact) => contact._id !== id));
+      } catch (error) {
+        console.error("Failed to delete contact:", error);
+      }
+    }
+  };
+
+  const handleDeleteMultiple = async () => {
+    if (
+      selectedContacts.length > 0 &&
+      window.confirm(
+        `Are you sure you want to delete ${selectedContacts.length} contacts?`
+      )
+    ) {
+      try {
+        await contactService.deleteMultipleContacts(selectedContacts);
+        setContacts((prev) =>
+          prev.filter((contact) => !selectedContacts.includes(contact._id))
+        );
+        setSelectedContacts([]);
+      } catch (error) {
+        console.error("Failed to delete multiple contacts:", error);
+      }
+    }
+  };
+
+  // Handle downloads
+  const handleDownloadPDF = async (id: string) => {
+    try {
+      const blob = await contactService.downloadPDF(id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `contact_${id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download PDF:", error);
+    }
+  };
+
+  const handleDownloadMultiplePDF = async () => {
+    if (selectedContacts.length === 0) return;
+    try {
+      const blob = await contactService.downloadMultiplePDF(selectedContacts);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "contacts.pdf";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download multiple PDFs:", error);
+    }
+  };
+
+  const handleDownloadExcel = async () => {
+    try {
+      // Replace the two separate method calls with a single one
+      const blob = await contactService.downloadExcel(
+        selectedContacts.length > 0 ? selectedContacts : null
+      );
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "contacts.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download Excel:", error);
+    }
+  };
+
+  const handleSort = (field: string) => {
+    setSortBy(sortBy === field ? `-${field}` : field);
+  };
+
+  const handleStatusChange = async (
+    id: string,
+    newStatus: "new" | "read" | "responded"
+  ) => {
+    try {
+      await contactService.updateContact(id, { status: newStatus });
+      setContacts((prev) =>
+        prev.map((contact) =>
+          contact._id === id ? { ...contact, status: newStatus } : contact
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update contact status:", error);
+    }
+  };
+
+  const statusOptions = [
+    { value: null, label: "All" },
+    { value: "new", label: "New" },
+    { value: "read", label: "Read" },
+    { value: "responded", label: "Responded" },
+  ];
 
   return (
     <>
       <Navbar setIsNavbarVisible={setIsNavbarVisible} />
       <div
         className={`${
-          isNavbarVisibele ? "min-h-[calc(100vh-52px)]" : "min-h-screen"
+          isNavbarVisible ? "min-h-[calc(100vh-52px)]" : "min-h-screen"
         } transition-all duration-500 flex flex-col bg-gray-100`}
       >
-        {/* Navbar */}
-
-        {/* Main Content */}
-        <div className="flex-grow flex justify-between ">
+        <div className="flex-grow flex justify-between">
           <div className="bg-white flex-1 hidden md:block"></div>
           <div className="max-w-7xl w-full px-4 pr-0 lg:px-32 py-6 bg-gray-100">
-            <div className="">
-              {/* Header */}
-              <div className="flex justify-between items-center mb-6 pr-4 lg:pr-0">
-                <h1 className="text-2xl font-medium text-gray-700">
-                  Employees
-                </h1>
-                <div className="flex space-x-2">
-                  <button className="p-2 border border-blue-500 text-blue-500 rounded">
-                    <FaFilter />
-                  </button>
-                  <button className="p-2 border border-blue-500 text-blue-500 rounded">
-                    <FaThLarge />
-                  </button>
-                  <button className="p-2 border border-blue-500 text-blue-500 rounded">
-                    <FaFileExport />
-                  </button>
-                  <button className="p-2 bg-blue-500 text-white rounded">
-                    <FaPlus />
-                  </button>
-                </div>
-              </div>
-
-              {/* Search Bar */}
-              <div className="flex justify-end space-x-4 items-center py-6 px-4 bg-white">
-                <div className="relative w-64">
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="w-full px-4 py-1 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <FaSearch className="absolute right-3 top-2 text-gray-400" />
-                </div>
-                <button className="p-2 bg-blue-500 text-white rounded">
-                  <FaSync />
-                </button>
-              </div>
-
-              {/* Table */}
-              <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead>
-                    <tr className="">
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        No.
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Employee ID
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Department
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Designation
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {employees.map((employee) => (
-                      <tr key={employee.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {employee.id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {employee.employeeId}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {employee.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {employee.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {employee.department}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {employee.designation}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="flex space-x-2">
-                            <button className="text-blue-500 hover:text-blue-700">
-                              <FaDownload />
-                            </button>
-                            <button className="text-green-500 hover:text-green-700">
-                              <FaEye />
-                            </button>
-                            <button className="text-red-500 hover:text-red-700">
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <Header
+              setShowFilterMenu={setShowFilterMenu}
+              showFilterMenu={showFilterMenu}
+              handleDownloadExcel={handleDownloadExcel}
+              handleDeleteMultiple={handleDeleteMultiple}
+              handleDownloadMultiplePDF={handleDownloadMultiplePDF}
+              selectedContacts={selectedContacts}
+            />
+            {showFilterMenu && (
+              <FilterMenu
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                limit={limit}
+                setLimit={setLimit}
+                statusOptions={statusOptions}
+              />
+            )}
+            <SearchBar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              toggleSelectAll={toggleSelectAll}
+              selectedContacts={selectedContacts}
+              filteredContacts={filteredContacts}
+              fetchContacts={fetchContacts}
+            />
+            <ContactsTable
+              filteredContacts={filteredContacts}
+              selectedContacts={selectedContacts}
+              toggleSelection={toggleSelection}
+              handleSort={handleSort}
+              handleDownloadPDF={handleDownloadPDF}
+              handleDeleteContact={handleDeleteContact}
+              handleStatusChange={handleStatusChange}
+              loading={loading}
+            />
+            {totalPages > 1 && (
+              <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+            )}
           </div>
         </div>
       </div>

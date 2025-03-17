@@ -1,28 +1,8 @@
 "use client";
-import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
-import React, { FormEvent, useState } from "react";
-import { authService } from "../services/api";
+import React from "react";
 
 const ContactPage: React.FC = () => {
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (response) => {
-      // Got the OAuth token
-      try {
-        // Call your API with the access token
-        await authService.googleAuth(response.access_token);
-        // router.push('/dashboard');
-      } catch (err) {
-        // setError(err.response?.data?.message || 'Google login failed');
-        console.log(err);
-      } finally {
-        // setLoading(false);
-      }
-    },
-    onError: () => {
-      // setError('Google login failed');
-    },
-  });
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -42,11 +22,22 @@ const ContactPage: React.FC = () => {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-[#E3ECFE] flex items-center justify-center py-6">
       <div className="absolute inset-0 bg-[#99bbf1] clip-path-custom hidden md:block"></div>
-      <GoogleLogin
-        onSuccess={async (credentialResponse) => {
+      {/* <FacebookLogin
+        buttonStyle={{ padding: "6px" }}
+        appId={process.env.FACEBOOK_APP_ID} // we need to get this from facebook developer console by setting the app.
+        autoLoad={false}
+        fields="name,email,picture"
+        callback={async (response) => {
+          if (response?.status === "unknown") {
+            console.error(
+              "Sorry!",
+              "Something went wrong with facebook Login."
+            );
+            return;
+          }
           try {
             // Pass the ID token as tokenId
-            await authService.googleAuth(credentialResponse.credential);
+            await authService.facebookAuth(response.accessToken, response.userID);
             // router.push("/dashboard");
           } catch (err) {
             // setError(err.response?.data?.message || "Google login failed");
@@ -54,14 +45,7 @@ const ContactPage: React.FC = () => {
             // setLoading(false);
           }
         }}
-        onError={() => {
-          // setError("Google login failed");
-        }}
-        size="large"
-        text="signin_with"
-        shape="rectangular"
-        width="100%"
-      />
+      /> */}
 
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-center px-6 md:px-12 lg:px-20">
         <div className="w-full md:w-1/2 flex flex-col justify-center space-y-6 z-20 relative">

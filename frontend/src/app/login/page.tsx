@@ -1,11 +1,40 @@
 "use client";
+import { GoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import React, { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { authService } from "@/services/api";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const handleGoogleLogin = async (credentialResponse: any) => {
+    try {
+      await authService.googleAuth(credentialResponse.credential);
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Google login failed", err);
+      setError("Google login failed. Please try again.");
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await authService.login({ email, password });
+      router.push("/dashboard"); // Redirect to dashboard after login
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Invalid email or password");
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-white">
@@ -29,14 +58,18 @@ const LoginPage = () => {
             </p>
           </div>
         </div>
-        
+
         <div className="md:w-1/2 p-8 rounded-r-lg">
-          <form>
+          <form onSubmit={handleLogin}>
+            {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
             <div className="mb-4">
               <label className="block text-gray-700 mb-2">Email address</label>
               <input
                 type="email"
                 placeholder="Your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#345484] bg-white"
               />
             </div>
@@ -47,6 +80,8 @@ const LoginPage = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#345484] bg-white"
                 />
                 <button
@@ -86,6 +121,15 @@ const LoginPage = () => {
 
             <div className="mt-6 text-center">
               <p className="text-gray-600">Or</p>
+
+              {/* Google Login Button */}
+              <div className="flex justify-center mt-3">
+                <GoogleLogin
+                  onSuccess={handleGoogleLogin}
+                  onError={() => setError("Google login failed")}
+                />
+              </div>
+
               <p className="mt-2">
                 Don't have an account?
                 <a href="/signup" className="text-[#345484] ml-1 font-medium">

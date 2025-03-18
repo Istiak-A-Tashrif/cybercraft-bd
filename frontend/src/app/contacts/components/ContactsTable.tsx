@@ -1,4 +1,8 @@
-import { FaDownload, FaEye, FaTrash, FaSort } from "react-icons/fa";
+import { FaDownload, FaTrash, FaSort } from "react-icons/fa";
+import { useState } from "react";
+
+import { contactService } from "@/services/api";
+import ContactDialog from "./ContactDialog";
 
 interface ContactsTableProps {
   filteredContacts: any[];
@@ -21,6 +25,7 @@ export default function ContactsTable({
   handleStatusChange,
   loading,
 }: ContactsTableProps) {
+
   return (
     <div className="overflow-x-auto bg-white shadow-md rounded-lg">
       <table className="min-w-full divide-y divide-gray-200">
@@ -137,12 +142,7 @@ export default function ContactsTable({
                     >
                       <FaDownload />
                     </button>
-                    <button
-                      className="text-green-500 hover:text-green-700 cursor-pointer"
-                      title="View Details"
-                    >
-                      <FaEye />
-                    </button>
+                    <ContactDialog contact={contact} />
                     <button
                       className="text-red-500 hover:text-red-700  cursor-pointer"
                       onClick={() => handleDeleteContact(contact._id)}

@@ -2,7 +2,8 @@
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
-import { authService, contactService } from "@/services/api"; // Import the service
+import { authService, contactService } from "@/services/api";
+import ConfirmationDialog from "@/components/ConfirmationDialog"; // Import the shared ConfirmationDialog component
 
 const ContactPage: React.FC = () => {
   const [isNavbarVisible, setIsNavbarVisible] = useState(false);
@@ -12,6 +13,11 @@ const ContactPage: React.FC = () => {
     email: "",
     message: "",
   });
+  const [dialog, setDialog] = useState({
+    isOpen: false,
+    title: "",
+    description: "",
+  });
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -19,14 +25,12 @@ const ContactPage: React.FC = () => {
         let contact = await contactService.getCurrentUserContact();
 
         if (contact?.data) {
-          // If contact exists, populate form
           setFormData({
             fullName: contact?.data?.fullName || "",
             email: contact?.data?.email || "",
             message: contact?.data?.message || "",
           });
         } else {
-          // If no contact, fetch user details
           const user = await authService.getCurrentUser();
           if (user) {
             setFormData((prev) => ({
@@ -59,11 +63,19 @@ const ContactPage: React.FC = () => {
     try {
       await contactService.createOrUpdateContact(formData);
 
-      alert(`Thank you, ${formData.fullName}! Your message has been received.`);
-      // setFormData({ fullName: "", email: "", message: "" });
+      setDialog({
+        isOpen: true,
+        title: "Thank You!",
+        description: `Thank you, ${formData.fullName}! Your message has been received.`,
+      });
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("There was an error submitting your message. Please try again.");
+      setDialog({
+        isOpen: true,
+        title: "Error",
+        description:
+          "There was an error submitting your message. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -74,7 +86,9 @@ const ContactPage: React.FC = () => {
       <Navbar setIsNavbarVisible={setIsNavbarVisible} />
       <div
         className={`relative w-full overflow-hidden bg-[#E3ECFE] flex items-center justify-center py-6 transition-all duration-500 ${
-          isNavbarVisible ? "min-h-[calc(100vh-100px)]  md:min-h-[calc(100vh-52px)]" : "min-h-screen"
+          isNavbarVisible
+            ? "min-h-[calc(100vh-100px)]  md:min-h-[calc(100vh-52px)]"
+            : "min-h-screen"
         }`}
       >
         <div className="absolute inset-0 bg-[#99bbf1] clip-path-custom hidden md:block"></div>
@@ -197,6 +211,14 @@ const ContactPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* ConfirmationDialog Component */}
+      <ConfirmationDialog
+        isOpen={dialog.isOpen}
+        onClose={() => setDialog((prev) => ({ ...prev, isOpen: false }))}
+        title={dialog.title}
+        description={dialog.description}
+      />
     </>
   );
 };

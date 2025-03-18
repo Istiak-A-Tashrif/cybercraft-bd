@@ -20,11 +20,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Cyber Craft",
   description: "Cyber Craft Bangladesh",
-  metadataBase: new URL("https://yourwebsite.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL as string),
   openGraph: {
     title: "Cyber Craft",
     description: "Cyber Craft Bangladesh",
-    url: "https://yourwebsite.com",
+    url: process.env.NEXT_PUBLIC_BASE_URL,
     siteName: "Cyber Craft",
     images: [
       {

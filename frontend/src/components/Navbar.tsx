@@ -118,49 +118,51 @@ const Navbar = ({ setIsNavbarVisible }: any) => {
           {/* Notification & User Profile */}
           <div className="flex items-center space-x-4">
             {/* Notification Icon */}
-            <div className="relative mr-3">
-              <div className="bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center absolute -top-1 -right-1">
-                2
-              </div>
-              <FaBell className="w-5 h-5 text-gray-600" />
-            </div>
 
             {/* User Profile & Dropdown */}
             {user ? (
-              <div className="relative">
-                <div
-                  className="flex items-center cursor-pointer"
-                  onClick={() => setShowDropdown((prev) => !prev)}
-                >
-                  <div className="mr-2 text-right">
-                    <div className="text-sm font-medium">{user.name}</div>
-                    <div className="text-xs text-gray-500 capitalize">
-                      {user.role}
-                    </div>
+              <>
+                <div className="relative mr-3">
+                  <div className="bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center absolute -top-1 -right-1">
+                    2
                   </div>
-                  <Image
-                    src={user?.providerData?.picture || "/images/avatar.svg"}
-                    alt="User Avatar"
-                    height={32}
-                    width={32}
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
+                  <FaBell className="w-5 h-5 text-gray-600" />
                 </div>
-
-                {/* Dropdown Menu */}
-                {showDropdown && (
-                  <div className="absolute right-0 mt-2 bg-white shadow-md rounded-md w-32">
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                    >
-                      Logout
-                    </button>
+                <div className="relative">
+                  <div
+                    className="flex items-center cursor-pointer"
+                    onClick={() => setShowDropdown((prev) => !prev)}
+                  >
+                    <div className="mr-2 text-right">
+                      <div className="text-sm font-medium">{user.name}</div>
+                      <div className="text-xs text-gray-500 capitalize">
+                        {user.role}
+                      </div>
+                    </div>
+                    <Image
+                      src={user?.providerData?.picture || "/images/avatar.svg"}
+                      alt="User Avatar"
+                      height={32}
+                      width={32}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
                   </div>
-                )}
-              </div>
+
+                  {/* Dropdown Menu */}
+                  {showDropdown && (
+                    <div className="absolute right-0 mt-2 bg-white shadow-md rounded-md w-32">
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : (
-              <div>Loading...</div>
+              <></>
             )}
           </div>
         </div>

@@ -7,6 +7,7 @@ import FilterMenu from "./FilterMenu";
 import Header from "./Header";
 import Pagination from "./Pagination";
 import SearchBar from "./SearchBar";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 interface Contact {
   _id: string;
@@ -30,6 +31,9 @@ export default function ContactsPage() {
   const [sortBy, setSortBy] = useState("-createdAt");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalAction, setModalAction] = useState<() => void>(() => () => {});
+  const [modalMessage, setModalMessage] = useState("");
 
   // Fetch contacts
   useEffect(() => {
@@ -77,34 +81,41 @@ export default function ContactsPage() {
     }
   };
 
+  const openModal = (message: string, action: () => void) => {
+    setModalMessage(message);
+    setModalAction(() => action);
+    setIsModalOpen(true);
+  };
+
+
   // Handle deletion
   const handleDeleteContact = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this contact?")) {
+    openModal("Are you sure you want to delete this contact?", async () => {
       try {
         await contactService.deleteContact(id);
         setContacts((prev) => prev.filter((contact) => contact._id !== id));
       } catch (error) {
         console.error("Failed to delete contact:", error);
       }
-    }
+    });
   };
 
   const handleDeleteMultiple = async () => {
-    if (
-      selectedContacts.length > 0 &&
-      window.confirm(
-        `Are you sure you want to delete ${selectedContacts.length} contacts?`
-      )
-    ) {
-      try {
-        await contactService.deleteMultipleContacts(selectedContacts);
-        setContacts((prev) =>
-          prev.filter((contact) => !selectedContacts.includes(contact._id))
-        );
-        setSelectedContacts([]);
-      } catch (error) {
-        console.error("Failed to delete multiple contacts:", error);
-      }
+    if (selectedContacts.length > 0) {
+      openModal(
+        `Are you sure you want to delete ${selectedContacts.length} contacts?`,
+        async () => {
+          try {
+            await contactService.deleteMultipleContacts(selectedContacts);
+            setContacts((prev) =>
+              prev.filter((contact) => !selectedContacts.includes(contact._id))
+            );
+            setSelectedContacts([]);
+          } catch (error) {
+            console.error("Failed to delete multiple contacts:", error);
+          }
+        }
+      );
     }
   };
 
@@ -196,7 +207,7 @@ export default function ContactsPage() {
       >
         <div className="flex-grow flex justify-between">
           <div className="bg-white flex-1 hidden md:block"></div>
-          <div className="max-w-7xl w-full px-4 pr-0 lg:px-32 py-6 bg-gray-100">
+          <div className="max-w-min w-full px-4 pr-0 lg:px-32 py-6 bg-gray-100">
             <Header
               setShowFilterMenu={setShowFilterMenu}
               showFilterMenu={showFilterMenu}
@@ -240,6 +251,16 @@ export default function ContactsPage() {
           </div>
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        title="Confirm Action"
+        message={modalMessage}
+        onConfirm={() => {
+          modalAction();
+          setIsModalOpen(false);
+        }}
+        onCancel={() => setIsModalOpen(false)}
+      />
     </>
   );
 }

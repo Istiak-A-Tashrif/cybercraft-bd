@@ -1,21 +1,21 @@
-import { Organization, WebSite, WithContext } from 'schema-dts';
+import { Organization, WebSite, WithContext } from "schema-dts";
 
 export function OrganizationJsonLd() {
   const organizationData: WithContext<Organization> = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Cyber Craft',
-    url: 'https://yourwebsite.com',
-    logo: '/images/cybercraft.svg',
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Cyber Craft",
+    url: process.env.NEXT_PUBLIC_BASE_URL,
+    logo: "/images/cybercraft.svg",
     sameAs: [
-      'https://www.facebook.com/IstiakAhmedTashrif',
-      'https://www.twitter.com/istiaktashrif',
-      'https://www.linkedin.com/company/istiak01',
+      "https://www.facebook.com/IstiakAhmedTashrif",
+      "https://www.twitter.com/istiaktashrif",
+      "https://www.linkedin.com/company/istiak01",
     ],
     contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+880 17011-37886',
-      contactType: 'customer service',
+      "@type": "ContactPoint",
+      telephone: "+880 17011-37886",
+      contactType: "customer service",
     },
   };
 
@@ -29,15 +29,15 @@ export function OrganizationJsonLd() {
 
 export function WebsiteJsonLd() {
   const websiteData: WithContext<WebSite> = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'Cyber Craft',
-    url: 'https://yourwebsite.com',
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Cyber Craft",
+    url: process.env.NEXT_PUBLIC_BASE_URL,
     potentialAction: {
-      '@type': 'SearchAction',
+      "@type": "SearchAction",
       target: {
-        '@type': 'EntryPoint',
-        urlTemplate: 'https://yourwebsite.com',
+        "@type": "EntryPoint",
+        urlTemplate: process.env.NEXT_PUBLIC_BASE_URL,
       },
     },
   };

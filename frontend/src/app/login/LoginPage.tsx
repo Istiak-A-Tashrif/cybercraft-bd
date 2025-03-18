@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { authService } from "@/services/api";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -107,14 +108,14 @@ const LoginPage = () => {
                   Remember me
                 </label>
               </div>
-              <a href="/forgot-password" className="text-[#345484] text-sm">
+              <Link href="#" className="text-[#345484] text-sm">
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-[#345484] hover:bg-[#2a406b] text-white font-medium py-3 px-4 rounded-md transition-colors"
+              className="w-full bg-[#345484] hover:bg-[#2a406b] text-white font-medium py-3 px-4 rounded-md transition-colors cursor-pointer"
             >
               Log in
             </button>
@@ -132,9 +133,9 @@ const LoginPage = () => {
 
               <p className="mt-2">
                 Don't have an account?
-                <a href="/signup" className="text-[#345484] ml-1 font-medium">
+                <Link href="/signup" className="text-[#345484] ml-1 font-medium">
                   Sign up
-                </a>
+                </Link>
               </p>
             </div>
           </form>

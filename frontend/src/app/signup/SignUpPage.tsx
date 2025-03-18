@@ -5,6 +5,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { authService } from "@/services/api";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
+import Link from "next/link";
 
 const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -143,7 +144,7 @@ const SignUpPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-[#345484] hover:bg-[#2a406b] text-white font-medium py-3 px-4 rounded-md transition-colors"
+              className="w-full bg-[#345484] hover:bg-[#2a406b] text-white font-medium py-3 px-4 rounded-md transition-colors cursor-pointer"
             >
               Create account
             </button>
@@ -161,9 +162,9 @@ const SignUpPage = () => {
 
               <p className="mt-2">
                 Already have an account?
-                <a href="/login" className="text-[#345484] ml-1 font-medium">
+                <Link href="/login" className="text-[#345484] ml-1 font-medium cursor-pointer">
                   Log in
-                </a>
+                </Link>
               </p>
             </div>
           </form>

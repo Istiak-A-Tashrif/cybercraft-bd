@@ -42,7 +42,7 @@ export default function ConfirmationPage() {
             <div className="flex justify-center">
               <button
                 onClick={() => router.push("/login")}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200 cursor-pointer"
+                className="w-full bg-[#345484] hover:bg-[#2a406b] text-white font-medium py-3 px-4 rounded-md transition-colors cursor-pointer"
               >
                 Go Back to Login
               </button>

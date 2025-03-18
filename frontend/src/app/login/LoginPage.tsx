@@ -31,7 +31,8 @@ const LoginPage = () => {
 
     try {
       const response = await authService.login({ email, password });
-      router.push("/"); // Redirect to dashboard after login
+      router.refresh();
+
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid email or password");
     }

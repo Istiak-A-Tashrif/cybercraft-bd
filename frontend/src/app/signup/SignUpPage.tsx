@@ -43,7 +43,7 @@ const SignUpPage = () => {
         password,
       });
 
-      router.push("/"); // Redirect after successful registration
+      router.refresh(); // Redirect after successful registration
     } catch (err) {
       setError(err.response?.data?.message || "Signup failed. Try again.");
     }

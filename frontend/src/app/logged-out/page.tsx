@@ -3,11 +3,15 @@ import Navbar from "@/components/Navbar";
 // pages/confirmation.js
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ConfirmationPage() {
   const router = useRouter();
   const [isNavbarVisible, setIsNavbarVisible] = useState(false);
+
+  useEffect(() => {
+    router.refresh();
+  }, []);
 
   return (
     <>

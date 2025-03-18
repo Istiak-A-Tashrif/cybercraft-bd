@@ -5,7 +5,7 @@ import "./globals.css";
 import {
   OrganizationJsonLd,
   WebsiteJsonLd,
-} from "./contacts/components/JsonLd";
+} from "../components/JsonLd";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

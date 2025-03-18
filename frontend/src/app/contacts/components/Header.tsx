@@ -1,4 +1,5 @@
 import { FaFilter, FaFileExport, FaTrash, FaDownload } from "react-icons/fa";
+import SocialShareButtons from "./SocialShareButtons";
 
 interface HeaderProps {
   setShowFilterMenu: (value: boolean) => void;
@@ -21,6 +22,7 @@ export default function Header({
     <div className="flex justify-between items-center mb-6 pr-4 lg:pr-0">
       <h1 className="text-2xl font-medium text-gray-700">Contacts</h1>
       <div className="flex space-x-2">
+        <SocialShareButtons  />
         <button
           className="p-2 border border-blue-500 text-blue-500 rounded cursor-pointer"
           onClick={() => setShowFilterMenu(!showFilterMenu)}

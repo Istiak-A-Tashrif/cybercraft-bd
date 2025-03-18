@@ -89,7 +89,6 @@ const Navbar = ({ setIsNavbarVisible }: any) => {
       }`}
     >
       <div className="md:flex items-center justify-between">
-        {/* Logo */}
         <div className="flex items-center">
           <Image
             height={40}
@@ -101,9 +100,7 @@ const Navbar = ({ setIsNavbarVisible }: any) => {
           />
         </div>
 
-        {/* Right Section */}
         <div className="flex justify-end items-center flex-1 space-x-4">
-          {/* Search Bar */}
           <div className="max-w-lg w-full">
             <div className="relative">
               <input
@@ -115,11 +112,7 @@ const Navbar = ({ setIsNavbarVisible }: any) => {
             </div>
           </div>
 
-          {/* Notification & User Profile */}
           <div className="flex items-center space-x-4">
-            {/* Notification Icon */}
-
-            {/* User Profile & Dropdown */}
             {user ? (
               <>
                 <div className="relative mr-3">
@@ -148,7 +141,6 @@ const Navbar = ({ setIsNavbarVisible }: any) => {
                     />
                   </div>
 
-                  {/* Dropdown Menu */}
                   {showDropdown && (
                     <div className="absolute right-0 mt-2 bg-white shadow-md rounded-md w-32">
                       <button

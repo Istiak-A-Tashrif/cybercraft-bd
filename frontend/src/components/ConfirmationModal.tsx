@@ -1,6 +1,6 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import CustomButton from "@/components/CustomButton"; // Import your custom button component
+import CustomButton from "@/components/CustomButton"; 
 
 interface ConfirmationModalProps {
   isOpen: boolean;

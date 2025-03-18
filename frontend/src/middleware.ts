@@ -8,43 +8,39 @@ export async function middleware(req: NextRequest) {
   const userRole = req.cookies.get("userRole")?.value;
   const url = req.nextUrl.clone();
 
-  // Exclude the `/logged-out` route from middleware checks
   if (url.pathname === "/logged-out") {
     return NextResponse.next();
   }
 
-  // If no token exists, redirect to login for non-public routes
   if (!token) {
     if (
       url.pathname === "/login" ||
       url.pathname === "/signup" ||
       url.pathname === "/logged-out"
     ) {
-      return NextResponse.next(); // Allow access to login, signup, or logged-out
+      return NextResponse.next(); 
     }
-    return NextResponse.redirect(new URL("/login", req.url)); // Redirect to login
+    return NextResponse.redirect(new URL("/login", req.url)); 
   }
 
   try {
     const isAdmin = userRole === "admin";
 
-    // Handle redirection for admin users
     if (isAdmin) {
       if (url.pathname === "/") {
-        return NextResponse.redirect(new URL("/contacts", req.url)); // Admin should go to /contacts
+        return NextResponse.redirect(new URL("/contacts", req.url));
       }
       if (url.pathname === "/login" || url.pathname === "/signup") {
-        return NextResponse.redirect(new URL("/contacts", req.url)); // Redirect to /contacts
+        return NextResponse.redirect(new URL("/contacts", req.url)); 
       }
     }
 
-    // Handle redirection for non-admin users
     if (!isAdmin) {
       if (url.pathname === "/contacts") {
-        return NextResponse.redirect(new URL("/", req.url)); // Redirect non-admin to homepage
+        return NextResponse.redirect(new URL("/", req.url)); 
       }
       if (url.pathname === "/login" || url.pathname === "/signup") {
-        return NextResponse.redirect(new URL("/", req.url)); // Redirect non-admin to homepage
+        return NextResponse.redirect(new URL("/", req.url)); 
       }
     }
 

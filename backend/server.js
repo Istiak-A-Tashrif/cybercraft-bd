@@ -11,63 +11,49 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
 
-// Load environment variables
 dotenv.config({ path: "./.env" });
 
-// Connect to database
 connectDB();
 
-// Route files
 const auth = require("./routes/auth");
 const contacts = require("./routes/contacts");
 
 const app = express();
 
-// Enable CORS
 app.use(
     cors({
-      origin: ['http://localhost:3000'],
+      origin: ['http://localhost:3000', process.env.APP_URL],
       credentials: true,
       optionsSuccessStatus: 200,
     })
   );
 
-// Body parser
 app.use(express.json());
 
-// Cookie parser
 app.use(cookieParser());
 
-// Dev logging middleware
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-// Sanitize data
 app.use(mongoSanitize());
 
-// Set security headers
 app.use(helmet());
 
-// Prevent XSS attacks
+
 app.use(xss());
 
-// Rate limiting
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 mins
   max: 100,
 });
 app.use(limiter);
 
-// Prevent http param pollution
 app.use(hpp());
 
-
-// Mount routers
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/contacts", contacts);
 
-// Error handling middleware
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
@@ -77,7 +63,6 @@ const server = app.listen(
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
 
-// Handle unhandled promise rejections
 process.on("unhandledRejection", (err, promise) => {
   console.log(`Error: ${err.message}`.red);
   // Close server & exit process

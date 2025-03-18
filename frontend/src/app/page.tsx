@@ -211,8 +211,7 @@ const ContactPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* ConfirmationDialog Component */}
+  
       <ConfirmationDialog
         isOpen={dialog.isOpen}
         onClose={() => setDialog((prev) => ({ ...prev, isOpen: false }))}

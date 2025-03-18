@@ -37,7 +37,6 @@ const ContactSchema = new mongoose.Schema({
   }
 });
 
-// Set updatedAt date on update
 ContactSchema.pre('findOneAndUpdate', function(next) {
   this.set({ updatedAt: new Date() });
   next();

@@ -43,15 +43,13 @@ const SocialShareButtons = ({
 
   return (
     <div>
-      {/* Share Button */}
       <Dialog>
         <DialogTrigger asChild>
           <button className="p-2 border border-blue-500 text-blue-500 rounded cursor-pointer">
             <FaShareAlt />
           </button>
         </DialogTrigger>
-
-        {/* Modal Content */}
+        
         <DialogContent className="bg-white rounded-lg shadow-lg max-w-md mx-auto p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-medium text-gray-800 mb-4">
@@ -59,23 +57,20 @@ const SocialShareButtons = ({
             </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col space-y-4">
-            {/* Facebook */}
             <FacebookShareButton url={shareUrl} hashtag={`#${shareTitle}`}>
               <div className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors">
                 <FacebookIcon size={32} round />
                 <span>Share on Facebook</span>
               </div>
             </FacebookShareButton>
-
-            {/* Twitter */}
+            
             <TwitterShareButton url={shareUrl} title={shareTitle}>
               <div className="flex items-center space-x-2 text-blue-400 hover:text-blue-600 transition-colors">
                 <TwitterIcon size={32} round />
                 <span>Share on Twitter</span>
               </div>
             </TwitterShareButton>
-
-            {/* Email */}
+            
             <EmailShareButton
               url={shareUrl}
               subject={shareTitle}
@@ -86,8 +81,7 @@ const SocialShareButtons = ({
                 <span>Share via Email</span>
               </div>
             </EmailShareButton>
-
-            {/* Copy Link */}
+            
             <button
               onClick={copyToClipboard}
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"

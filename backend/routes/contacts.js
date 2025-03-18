@@ -19,17 +19,13 @@ const router = express.Router();
 const { protect, authorize } = require("../middleware/auth");
 const { Roles } = require("../config/role");
 
-// ✅ Protect all routes
 router.use(protect);
 
-// ✅ Routes for all authenticated users
 router.route("/me").get(getCurrentUserContact);
 router.route("/").post(createOrUpdateContact);
 
-// ✅ Public (No Admin Required)
 router.route("/excel").get(downloadContactsExcel);
 
-// ✅ Routes that need admin authorization
 router.route("/")
   .get(authorize(Roles.Admin), advancedResults(Contact), getContacts)
   .delete(authorize(Roles.Admin), deleteMultipleContacts);

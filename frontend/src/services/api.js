@@ -1,11 +1,8 @@
-// services/api.js - Core API service with axios
-
 import axios from "axios";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -13,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor for adding auth token
 api.interceptors.request.use(
   (config) => {
     const token = getCookie("token");
@@ -25,14 +21,11 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for handling auth errors
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // Handle 401 Unauthorized errors
     if (error.response && error.response.status === 401) {
       deleteCookie("token");
-      // Redirect to login if we're in the browser
       if (typeof window !== "undefined") {
         window.location.href = "/login";
       }
@@ -41,7 +34,6 @@ api.interceptors.response.use(
   }
 );
 
-// Auth services
 export const authService = {
   register: async (userData) => {
     const response = await api.post("/auth/register", userData);
@@ -90,9 +82,7 @@ export const authService = {
   },
 };
 
-// Contact services
 export const contactService = {
-  // User endpoints
   getCurrentUserContact: async () => {
     const response = await api.get("/contacts/me");
     return response.data;
@@ -103,7 +93,6 @@ export const contactService = {
     return response.data;
   },
 
-  // Admin endpoints
   getAllContacts: async (
     page = 1,
     limit = 10,
@@ -155,11 +144,9 @@ export const contactService = {
     return response.data;
   },
 
-  // Replace the two Excel download methods with a single consistent one
   downloadExcel: async (ids = null) => {
     let url = "/contacts/excel";
 
-    // If ids are provided, add them as query params
     if (ids && ids.length > 0) {
       const idString = ids.join(",");
       url = `${url}?ids=${idString}`;

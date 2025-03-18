@@ -5,7 +5,6 @@ const {
   googleAuth,
   facebookAuth,
   getMe,
-  logout
 } = require('../controllers/auth');
 
 const router = express.Router();
@@ -17,6 +16,5 @@ router.post('/login', login);
 router.post('/google', googleAuth);
 router.post('/facebook', facebookAuth);
 router.get('/me', protect, getMe);
-router.get('/logout', logout);
 
 module.exports = router;

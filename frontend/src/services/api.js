@@ -45,32 +45,36 @@ api.interceptors.response.use(
 export const authService = {
   register: async (userData) => {
     const response = await api.post("/auth/register", userData);
-    if (response.data.token) {
-      setCookie("token", response.data.token);
+    if (response.data.data.token) {
+      setCookie("token", response.data.data.token);
+      setCookie("userRole", response.data.data.role);
     }
     return response.data;
   },
 
   login: async (credentials) => {
     const response = await api.post("/auth/login", credentials);
-    if (response.data.token) {
-      setCookie("token", response.data.token);
+    if (response.data.data.token) {
+      setCookie("token", response.data.data.token);
+      setCookie("userRole", response.data.data.role);
     }
     return response.data;
   },
 
   googleAuth: async (tokenId) => {
     const response = await api.post("/auth/google", { tokenId });
-    if (response.data.token) {
-      setCookie("token", response.data.token);
+    if (response.data.data.token) {
+      setCookie("token", response.data.data.token);
+      setCookie("userRole", response.data.data.role);
     }
     return response.data;
   },
 
   facebookAuth: async (accessToken, userID) => {
     const response = await api.post("/auth/facebook", { accessToken, userID });
-    if (response.data.token) {
-      setCookie("token", response.data.token);
+    if (response.data.data.token) {
+      setCookie("token", response.data.data.token);
+      setCookie("userRole", response.data.data.role);
     }
     return response.data;
   },
@@ -81,9 +85,8 @@ export const authService = {
   },
 
   logout: async () => {
-    const response = await api.get("/auth/logout");
     deleteCookie("token");
-    return response.data;
+    deleteCookie("userRole");
   },
 };
 

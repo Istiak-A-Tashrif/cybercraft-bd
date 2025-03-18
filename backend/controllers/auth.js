@@ -144,39 +144,13 @@ exports.getMe = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: user });
 });
 
-// @desc    Log user out / clear cookie
-// @route   GET /api/v1/auth/logout
-// @access  Private
-exports.logout = asyncHandler(async (req, res, next) => {
-  res.cookie("token", "none", {
-    expires: new Date(Date.now() - 1), // Immediately expire the cookie
-    httpOnly: true, // Ensure the cookie is not accessible via JavaScript
-    secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-  });
-
-  res.status(200).json({ success: true, message: "Logged out successfully" }); // Respond with a success message
-});
-
 // Helper function to get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
   // Create token
   const token = user.getSignedJwtToken();
-
-  // Ensure JWT_COOKIE_EXPIRE is a number
-  const cookieExpireDays = Number(process.env.JWT_COOKIE_EXPIRE) || 1; // Default to 1 day if undefined
-
-  const options = {
-    expires: new Date(Date.now() + cookieExpireDays * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-  };
-
-  // Use secure cookies in production
-  if (process.env.NODE_ENV === "production") {
-    options.secure = true;
-  }
-
-  res.status(statusCode).cookie("token", token, options).json({
+  const response = { token, role: user.role };
+  res.status(statusCode).json({
     success: true,
-    token,
+    data: response,
   });
 };

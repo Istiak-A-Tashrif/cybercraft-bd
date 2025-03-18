@@ -1,4 +1,3 @@
-// app/components/JsonLd.tsx
 import { Organization, WebSite, WithContext } from 'schema-dts';
 
 export function OrganizationJsonLd() {
